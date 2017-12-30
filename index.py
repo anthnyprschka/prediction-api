@@ -1,4 +1,12 @@
 def lambda_handler(event, context):
-    return {
-        'message': 'works indeed'
-    }
+
+    response = {
+        "statusCode": 200,
+        "headers": {
+            "my_header": "my_value"
+        },
+        "body": "works indeed",
+        "isBase64Encoded": false
+    };
+
+    return response
