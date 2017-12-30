@@ -6,7 +6,6 @@ def lambda_handler(event, context):
             "my_header": "my_value"
         },
         "body": "works indeed",
-        "isBase64Encoded": false
     };
 
     return response
