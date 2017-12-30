@@ -1,2 +1,4 @@
-def lambda_handler(json_input, context):
-    return 'works indeed'
+def lambda_handler(event, context):
+    return {
+        'message': 'works indeed'
+    }
