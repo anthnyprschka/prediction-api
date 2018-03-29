@@ -1,0 +1,176 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ElasticBeanstalk deployment for prediction-api
+
+Resources:
+  Application:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      Description: prediction-api application test
+      ApplicationName: prediction-api-9
+
+  ApplicationVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName:
+        Ref: Application
+      Description: prediction-api application version test1
+      SourceBundle:
+        S3Bucket: test-prediction-api-1
+        S3Key: prediction-api.zip
+
+  ConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    Properties:
+      ApplicationName:
+        Ref: Application
+      Description: prediction-api configuration template
+      SolutionStackName: 64bit Amazon Linux 2017.09 v2.6.5 running Python 2.7
+      OptionSettings:
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: prediction-api-test
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref InstanceProfile
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: ServiceRole
+          Value: !Ref ServiceRole
+        # Specifies the WSGIPath although this should be the default anyways
+        # - Namespace: 'aws:elasticbeanstalk:application:environment'
+        #   OptionName: WSGIPath
+        #   Value: application.py
+        # - Namespace: aws:autoscaling:asg
+        #   OptionName: MinSize
+        #   Value: '1'
+        # - Namespace: aws:autoscaling:asg
+        #   OptionName: MaxSize
+        #   Value: '2'
+        # - Namespace: aws:elasticbeanstalk:environment
+        #   OptionName: EnvironmentType
+        #   Value: LoadBalanced
+
+  Environment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName:
+        Ref: Application
+      Description: First environment created for testing purposes
+      # EnvironmentName: TestEnvironment1
+      TemplateName:
+        Ref: ConfigurationTemplate
+      VersionLabel:
+        Ref: ApplicationVersion
+      Tier:
+        Name: Worker
+        Type: SQS/HTTP
+      # SolutionStackName: String
+      # PlatformArn: String
+      # Tags:
+      #   - Resource Tag, ...
+      # CNAMEPrefix: String
+      # Declare settings that can overwrite settings in configuration template
+      # OptionSettings:
+        # XXX: Can probably shift these into the configuration for reusability
+
+  ServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: elasticbeanstalk.amazonaws.com
+            Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                'sts:ExternalId': elasticbeanstalk
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'elasticloadbalancing:DescribeInstanceHealth'
+                  - 'ec2:DescribeInstances'
+                  - 'ec2:DescribeInstanceStatus'
+                  - 'ec2:GetConsoleOutput'
+                  - 'ec2:AssociateAddress'
+                  - 'ec2:DescribeAddresses'
+                  - 'ec2:DescribeSecurityGroups'
+                  - 'sqs:GetQueueAttributes'
+                  - 'sqs:GetQueueUrl'
+                  - 'autoscaling:DescribeAutoScalingGroups'
+                  - 'autoscaling:DescribeAutoScalingInstances'
+                  - 'autoscaling:DescribeScalingActivities'
+                  - 'autoscaling:DescribeNotificationConfigurations'
+                Resource:
+                  - '*'
+      Path: /
+
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref InstanceProfileRole
+
+  InstanceProfileRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: BucketAccess
+                Action:
+                  - 's3:Get*'
+                  - 's3:List*'
+                  - 's3:PutObject'
+                Effect: Allow
+                Resource:
+                  - !Join
+                    - ''
+                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
+                      - !Ref 'AWS::AccountId'
+                  - !Join
+                    - ''
+                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
+                      - !Ref 'AWS::AccountId'
+                      - /*
+                  - !Join
+                    - ''
+                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
+                      - !Ref 'AWS::AccountId'
+                      - '-*'
+                  - !Join
+                    - ''
+                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
+                      - !Ref 'AWS::AccountId'
+                      - '-*/*'
+              - Sid: QueueAccess
+                Action:
+                  - 'sqs:ChangeMessageVisibility'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:SendMessage'
+                Effect: Allow
+                Resource: '*'
+              - Sid: MetricsAccess
+                Action:
+                  - 'cloudwatch:PutMetricData'
+                Effect: Allow
+                Resource: '*'
+      Path: /

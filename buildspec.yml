@@ -1,11 +1,13 @@
 version: 0.2
 phases:
-  install:
+  build:
     commands:
-      - echo 'i shall be heard'
-      - aws cloudformation package --template-file samTemplate.yaml --s3-bucket anthony-prediction-api
-                                   --output-template-file NewSamTemplate.yaml
+      - aws cloudformation package
+        --template-file deployment-template.yml
+        --s3-bucket "$CLOUDFORMATION_PACKAGE_S3BUCKET"
+        --s3-prefix "$CLOUDFORMATION_PACKAGE_S3PREFIX"
+        --output-template-file cloudformation-deployment-template.yml
 artifacts:
   type: zip
   files:
-    - NewSamTemplate.yaml
+    - cloudformation-deployment-template.yml
