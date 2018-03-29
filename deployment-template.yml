@@ -134,6 +134,14 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
+              - Sid: QueueAccess
+                Action:
+                  - 'sqs:ChangeMessageVisibility'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:SendMessage'
+                Effect: Allow
+                Resource: '*'
               - Sid: BucketAccess
                 Action:
                   - 's3:Get*'
@@ -160,14 +168,6 @@ Resources:
                     - - 'arn:aws:s3:::elasticbeanstalk-*-'
                       - !Ref 'AWS::AccountId'
                       - '-*/*'
-              - Sid: QueueAccess
-                Action:
-                  - 'sqs:ChangeMessageVisibility'
-                  - 'sqs:DeleteMessage'
-                  - 'sqs:ReceiveMessage'
-                  - 'sqs:SendMessage'
-                Effect: Allow
-                Resource: '*'
               - Sid: MetricsAccess
                 Action:
                   - 'cloudwatch:PutMetricData'
