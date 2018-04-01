@@ -28,7 +28,7 @@ Resources:
       OptionSettings:
         - Namespace: 'aws:autoscaling:launchconfiguration'
           OptionName: EC2KeyName
-          Value: prediction-api-test
+          Value: prediction-api-test2
         - Namespace: 'aws:autoscaling:launchconfiguration'
           OptionName: IamInstanceProfile
           Value: !Ref InstanceProfile
@@ -70,7 +70,7 @@ Resources:
       # CNAMEPrefix: String
       # Declare settings that can overwrite settings in configuration template
       # OptionSettings:
-        # XXX: Can probably shift these into the configuration for reusability
+        # -
 
   ServiceRole:
     Type: 'AWS::IAM::Role'
