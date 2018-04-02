@@ -30,7 +30,7 @@ def application(environ, start_response):
             if path == '/':
                 request_body_size = int(environ['CONTENT_LENGTH'])
                 request_body = environ['wsgi.input'].read(request_body_size).decode()
-                logger.info("2 - This is the message I received: %s" % request_body)
+                logger.info("New message template 20180402115250: %s" % request_body)
 
             # HTTP requests sent from the cron job
             elif path == '/scheduled':
