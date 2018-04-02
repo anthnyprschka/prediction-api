@@ -8,6 +8,7 @@ phases:
       - sudo apt-get install zip
       - echo 'installed zip'
       - zip -r ./prediction-api-test-a.zip *
+      - ls
       - aws cloudformation package
         --template-file deployment-template.yml
         --s3-bucket "$CLOUDFORMATION_PACKAGE_S3BUCKET"
