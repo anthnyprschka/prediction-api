@@ -2,6 +2,8 @@ version: 0.2
 phases:
   build:
     commands:
+      - echo $CLOUDFORMATION_PACKAGE_S3BUCKET
+      - echo $CLOUDFORMATION_PACKAGE_S3PREFIX
       - aws cloudformation package
         --template-file deployment-template.yml
         --s3-bucket "$CLOUDFORMATION_PACKAGE_S3BUCKET"
