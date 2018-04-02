@@ -109,6 +109,7 @@ Resources:
         Type: S3
         Location: !Ref ArtifactBucketName
       Stages:
+
       - Name: Source
         Actions:
         - Name: Source
@@ -124,6 +125,7 @@ Resources:
             OAuthToken: !Ref GitHubToken
           OutputArtifacts: [Name: SourceArtifact]
           RunOrder: 1
+
       - Name: Build
         Actions:
           - Name: CodeBuild
@@ -138,7 +140,46 @@ Resources:
               ProjectName:
                 Ref: BuildCFNProject
             RunOrder: 1
-      - Name: Deploy
+
+      - Name: Testing
+        Actions:
+          - Name: CreateStack
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: '1'
+            InputArtifacts: [Name: CFNTemplateArtifact]
+            Configuration:
+              ActionMode: REPLACE_ON_FAILURE
+              RoleArn: !GetAtt [CFNRole, Arn]
+              StackName: testing-prediction-api-stack
+              TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
+              Capabilities: CAPABILITY_IAM
+            RunOrder: '1'
+          - Name: ApproveTestStack
+            ActionTypeId:
+              Category: Approval
+              Owner: AWS
+              Provider: Manual
+              Version: '1'
+            Configuration:
+              # NotificationArn: !Ref CodePipelineSNSTopic
+              CustomData: !Sub 'Do you want to create a change set against the production stack and delete the testing stack?'
+            RunOrder: '2'
+          - Name: DeleteTestStack
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: '1'
+            Configuration:
+              ActionMode: DELETE_ONLY
+              RoleArn: !GetAtt [CFNRole, Arn]
+              StackName: testing-prediction-api-stack
+            RunOrder: '3'
+
+      - Name: Production
         Actions:
           - Name: CreateOrReplaceChangeset
             InputArtifacts: [Name: CFNTemplateArtifact]
@@ -150,14 +191,10 @@ Resources:
             Configuration:
               ActionMode: CHANGE_SET_REPLACE
               RoleArn: !GetAtt [CFNRole, Arn]
-              StackName:
-                Fn::Sub: ${AWS::StackName}-prediction-api-stack
-              ChangeSetName:
-                Fn::Sub: ${AWS::StackName}-prediction-api-changeset
-              # Reference the name of the CFN template that buildspec.yml generates:
+              StackName: production-prediction-api-stack
+              ChangeSetName: production-prediction-api-changeset
               TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
               Capabilities: CAPABILITY_IAM
-              #ParameterOverrides: {}
             RunOrder: 1
           - Name:  ExecuteChangeset
             ActionTypeId:
@@ -168,9 +205,9 @@ Resources:
             Configuration:
               ActionMode: CHANGE_SET_EXECUTE
               StackName:
-                Fn::Sub: ${AWS::StackName}-prediction-api-stack
+                Fn::Sub: production-prediction-api-stack
               ChangeSetName:
-                Fn::Sub: ${AWS::StackName}-prediction-api-changeset
+                Fn::Sub: production-prediction-api-changeset
             RunOrder: 2
 
   CFNRole:

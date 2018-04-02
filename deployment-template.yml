@@ -6,7 +6,7 @@ Resources:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
       Description: prediction-api application test
-      ApplicationName: prediction-api-10
+      ApplicationName: prediction-api-11
 
   ApplicationVersion:
     Type: AWS::ElasticBeanstalk::ApplicationVersion
