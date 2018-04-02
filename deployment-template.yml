@@ -34,19 +34,19 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:environment'
           OptionName: ServiceRole
           Value: !Ref ServiceRole
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: '1'
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: '6'
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
         # Specifies the WSGIPath although this should be the default anyways
         # - Namespace: 'aws:elasticbeanstalk:application:environment'
         #   OptionName: WSGIPath
         #   Value: application.py
-        # - Namespace: aws:autoscaling:asg
-        #   OptionName: MinSize
-        #   Value: '1'
-        # - Namespace: aws:autoscaling:asg
-        #   OptionName: MaxSize
-        #   Value: '2'
-        # - Namespace: aws:elasticbeanstalk:environment
-        #   OptionName: EnvironmentType
-        #   Value: LoadBalanced
 
   Environment:
     Type: AWS::ElasticBeanstalk::Environment
@@ -62,7 +62,6 @@ Resources:
       Tier:
         Name: Worker
         Type: SQS/HTTP
-      # SolutionStackName: String
       # PlatformArn: String
       # Tags:
       #   - Resource Tag, ...
