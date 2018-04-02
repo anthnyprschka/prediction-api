@@ -15,8 +15,8 @@ Resources:
         Ref: Application
       Description: prediction-api application version test1
       SourceBundle:
-        S3Bucket: ./
-        S3Key: ./
+        S3Bucket:
+        S3Key:
 
   ConfigurationTemplate:
     Type: AWS::ElasticBeanstalk::ConfigurationTemplate
