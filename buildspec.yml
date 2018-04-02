@@ -4,6 +4,7 @@ phases:
     commands:
       - echo $CLOUDFORMATION_PACKAGE_S3BUCKET
       - echo $CLOUDFORMATION_PACKAGE_S3PREFIX
+      - apt-get update
       - sudo apt-get install zip
       - echo 'installed zip'
       - zip -r ./prediction-api-test-a.zip *
