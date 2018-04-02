@@ -2,18 +2,19 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo $CLOUDFORMATION_PACKAGE_S3BUCKET
-      - echo $CLOUDFORMATION_PACKAGE_S3PREFIX
-      - apt-get update
-      - sudo apt-get install zip
-      - echo 'installed zip'
-      - zip -r ./prediction-api-test-a.zip *
-      - ls
+      # - echo $CLOUDFORMATION_PACKAGE_S3BUCKET
+      # - echo $CLOUDFORMATION_PACKAGE_S3PREFIX
+      # - apt-get update
+      # - sudo apt-get install zip
+      # - echo 'installed zip'
+      # - zip -r ./prediction-api-test-a.zip *
+      # - ls
       - aws cloudformation package
         --template-file deployment-template.yml
         --s3-bucket "$CLOUDFORMATION_PACKAGE_S3BUCKET"
         --s3-prefix "$CLOUDFORMATION_PACKAGE_S3PREFIX"
         --output-template-file cloudformation-deployment-template.yml
+      # - ls
 artifacts:
   type: zip
   files:

@@ -84,7 +84,7 @@ Resources:
     Properties:
       Name:
         Fn::Sub: BuildCFNProject-${AWS::StackName}
-      Description: Build EBS environment using CloudFormation.
+      Description: Build EBS deployment template and source bundle using CloudFormation.
       ServiceRole: !GetAtt [ CodeBuildRole, Arn ]
       Artifacts:
         Type: CODEPIPELINE
@@ -95,8 +95,6 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/python:2.7.12
         EnvironmentVariables:
-          # Location must match the build role policy for access
-          # These variables are referenced in the buildspec.yml
           - Name: CLOUDFORMATION_PACKAGE_S3BUCKET
             Value: !Ref ArtifactBucketName
           - Name: CLOUDFORMATION_PACKAGE_S3PREFIX
@@ -106,7 +104,6 @@ Resources:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn:
-        # XXX Statically referenced role.
         Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/AWS-CodePipeline-Service
       ArtifactStore:
         Type: S3

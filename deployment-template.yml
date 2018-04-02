@@ -14,9 +14,8 @@ Resources:
       ApplicationName:
         Ref: Application
       Description: prediction-api application version test1
+      # Leave this empty as it's populated by aws cloudformation package command
       SourceBundle:
-        S3Bucket: ./
-        S3Key: prediction-api-test-a.zip
 
   ConfigurationTemplate:
     Type: AWS::ElasticBeanstalk::ConfigurationTemplate
