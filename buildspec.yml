@@ -4,6 +4,8 @@ phases:
     commands:
       - echo $CLOUDFORMATION_PACKAGE_S3BUCKET
       - echo $CLOUDFORMATION_PACKAGE_S3PREFIX
+      - sudo apt-get install zip
+      - zip -r ./prediction-api-test-a.zip *
       - aws cloudformation package
         --template-file deployment-template.yml
         --s3-bucket "$CLOUDFORMATION_PACKAGE_S3BUCKET"
