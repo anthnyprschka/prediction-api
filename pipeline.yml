@@ -26,7 +26,7 @@ Parameters:
   TestEnvVariable:
     Type: String
     Description: Test variable that shall be passed to testing and production EBS environments
-    NoEcho: true
+    # NoEcho: true
   # XXX: MongoDB-URL
   # XXX: MongoDB-username
   # XXX: MongoDB-password
@@ -231,14 +231,34 @@ Resources:
                 - cloudformation.amazonaws.com
         Version: '2012-10-17'
       Path: /
-      ManagedPolicyArns:
-        # This gives CloudFormation access to deploy EBS applications
-        - arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess
       Policies:
         - PolicyName: cloudformation-beanstalk-execution-role
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
+            - Action:
+                - s3:GetObject
+                - s3:GetObjectVersion
+                - s3:GetBucketVersioning
+                - s3:PutObject
+              Resource: !Sub
+                - ${bucketArn}/*
+                - { bucketArn: !GetAtt [ArtifactBucket, Arn] }
+              Effect: Allow
+            - Action:
+                - elasticbeanstalk:*
+                - ec2:*
+                - elasticloadbalancing:*
+                - autoscaling:*
+                - cloudwatch:*
+                - sns:*
+                - cloudformation:*
+                - rds:*
+                - sqs:*
+                - iam:PassRole
+              Resource:
+                - '*'
+              Effect: Allow
             - Action:
                 - iam:GetRole
                 - iam:CreateRole
@@ -251,12 +271,8 @@ Resources:
                 - !Sub arn:aws:iam::${AWS::AccountId}:role/*
               Effect: Allow
             - Action:
-                # - iam:CreateInstanceProfile
-                # - iam:RemoveRoleFromInstanceProfile
-                # - iam:DeleteInstanceProfile
                 - iam:*
               Resource:
                 - !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*
               Effect: Allow
-
 
