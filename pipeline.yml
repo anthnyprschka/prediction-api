@@ -166,10 +166,7 @@ Resources:
               StackName: testing-prediction-api-stack
               TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
               Capabilities: CAPABILITY_IAM
-              ParameterOverrides:
-                -
-                # - MongoDB parameters
-                # - AssetBucket-S3Bucket
+              # ParameterOverrides:
             RunOrder: '1'
           - Name: ApproveTestStack
             ActionTypeId:
@@ -237,6 +234,29 @@ Resources:
       ManagedPolicyArns:
         # This gives CloudFormation access to deploy EBS applications
         - arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess
-
+      Policies:
+        - PolicyName: cloudformation-beanstalk-execution-role
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Action:
+                - iam:GetRole
+                - iam:CreateRole
+                - iam:DeleteRole
+                - iam:PutRolePolicy
+                - iam:AttachRolePolicy
+                - iam:DeleteRolePolicy
+                - iam:DetachRolePolicy
+              Resource:
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/*
+              Effect: Allow
+            - Action:
+                # - iam:CreateInstanceProfile
+                # - iam:RemoveRoleFromInstanceProfile
+                # - iam:DeleteInstanceProfile
+                - iam:*
+              Resource:
+                - !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*
+              Effect: Allow
 
 

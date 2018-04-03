@@ -3,6 +3,9 @@ import logging.handlers
 
 from wsgiref.simple_server import make_server
 
+import os
+test_var = os.environ['TEST_VAR']
+
 # Create logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -30,7 +33,7 @@ def application(environ, start_response):
             if path == '/':
                 request_body_size = int(environ['CONTENT_LENGTH'])
                 request_body = environ['wsgi.input'].read(request_body_size).decode()
-                logger.info("New message template 20180402232050: %s" % request_body)
+                logger.info("New message template 20180402232050: {}, {}".format(request_body, test_var))
 
             # HTTP requests sent from the cron job
             elif path == '/scheduled':
