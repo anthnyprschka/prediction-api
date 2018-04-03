@@ -150,6 +150,7 @@ Resources:
               ProjectName:
                 Ref: BuildCFNProject
             RunOrder: 1
+
       - Name: Production
         Actions:
           - Name: CreateOrReplaceChangeset
@@ -191,6 +192,9 @@ Resources:
                 - cloudformation.amazonaws.com
         Version: '2012-10-17'
       Path: /
+      ManagedPolicyArns:
+        # XXX: Don't need this
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
       Policies:
         - PolicyName: cloudformation-beanstalk-execution-role
           PolicyDocument:
@@ -206,17 +210,21 @@ Resources:
                 - { bucketArn: !GetAtt [ArtifactBucket, Arn] }
               Effect: Allow
             - Action:
+                # - elasticbeanstalk:CreateApplication
                 - elasticbeanstalk:*
                 - ec2:*
                 - elasticloadbalancing:*
                 - autoscaling:*
                 - cloudwatch:*
+                - s3:*
                 - sns:*
+                # - cloudformation:CreateChangeSet
                 - cloudformation:*
                 - rds:*
                 - sqs:*
                 - iam:PassRole
               Resource:
+                # - !Sub arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/*
                 - '*'
               Effect: Allow
             - Action:
@@ -231,6 +239,9 @@ Resources:
                 - !Sub arn:aws:iam::${AWS::AccountId}:role/*
               Effect: Allow
             - Action:
+                # - iam:CreateInstanceProfile
+                # - iam:RemoveRoleFromInstanceProfile
+                # - iam:DeleteInstanceProfile
                 - iam:*
               Resource:
                 - !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*
