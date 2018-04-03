@@ -1,20 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: ElasticBeanstalk deployment for prediction-api
+Description: candis-prediction-api EBS DeploymentTemplate
 
 Resources:
   Application:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
-      Description: prediction-api application test
-      ApplicationName: prediction-api-11
+      Description: candis-prediction-api EBS Application
+      ApplicationName: candis-prediction-api-0
 
   ApplicationVersion:
     Type: AWS::ElasticBeanstalk::ApplicationVersion
     Properties:
       ApplicationName:
         Ref: Application
-      Description: prediction-api application version test1
-      # Leave this empty as it's populated by aws cloudformation package command
+      Description: candis-prediction-api EBS ApplicationVersion
+      # Leave this empty as it's populated by aws cloudformation package command in CodeBuild stage
       SourceBundle:
 
   ConfigurationTemplate:
@@ -22,7 +22,7 @@ Resources:
     Properties:
       ApplicationName:
         Ref: Application
-      Description: prediction-api configuration template
+      Description: candis-prediction-api EBS ConfigurationTemplate
       SolutionStackName: 64bit Amazon Linux 2017.09 v2.6.5 running Python 2.7
       OptionSettings:
         - Namespace: 'aws:autoscaling:launchconfiguration'
@@ -43,18 +43,13 @@ Resources:
         - Namespace: aws:elasticbeanstalk:environment
           OptionName: EnvironmentType
           Value: LoadBalanced
-        # Specifies the WSGIPath although this should be the default anyways
-        # - Namespace: 'aws:elasticbeanstalk:application:environment'
-        #   OptionName: WSGIPath
-        #   Value: application.py
 
   Environment:
     Type: AWS::ElasticBeanstalk::Environment
     Properties:
       ApplicationName:
         Ref: Application
-      Description: First environment created for testing purposes
-      # EnvironmentName: TestEnvironment1
+      Description: candis-prediction-api EBS Environment
       TemplateName:
         Ref: ConfigurationTemplate
       VersionLabel:
@@ -62,13 +57,9 @@ Resources:
       Tier:
         Name: Worker
         Type: SQS/HTTP
-      # PlatformArn: String
-      # Tags:
-      #   - Resource Tag, ...
-      # CNAMEPrefix: String
-      # Declare settings that can overwrite settings in configuration template
-      # OptionSettings:
-        # -
+      # EnvironmentName: XXX
+
+  # XXX: SQS output queue
 
   ServiceRole:
     Type: 'AWS::IAM::Role'
@@ -85,7 +76,7 @@ Resources:
               StringEquals:
                 'sts:ExternalId': elasticbeanstalk
       Policies:
-        - PolicyName: root
+        - PolicyName: monitoring-permissions-role
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -128,7 +119,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       Policies:
-        - PolicyName: root
+        - PolicyName: operating-permissions-role
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -140,35 +131,10 @@ Resources:
                   - 'sqs:SendMessage'
                 Effect: Allow
                 Resource: '*'
-              - Sid: BucketAccess
-                Action:
-                  - 's3:Get*'
-                  - 's3:List*'
-                  - 's3:PutObject'
-                Effect: Allow
-                Resource:
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
-                      - !Ref 'AWS::AccountId'
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
-                      - !Ref 'AWS::AccountId'
-                      - /*
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
-                      - !Ref 'AWS::AccountId'
-                      - '-*'
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::elasticbeanstalk-*-'
-                      - !Ref 'AWS::AccountId'
-                      - '-*/*'
               - Sid: MetricsAccess
                 Action:
                   - 'cloudwatch:PutMetricData'
                 Effect: Allow
                 Resource: '*'
+              # XXX: Add S3 bucket access to read models and write data
       Path: /

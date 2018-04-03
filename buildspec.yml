@@ -1,10 +1,12 @@
 version: 0.2
 phases:
+  # XXX: Introduce testing stage
   build:
     commands:
       - aws cloudformation package
         --template-file deployment-template.yml
         --s3-bucket "$CLOUDFORMATION_PACKAGE_S3BUCKET"
+        --s3-prefix "$CLOUDFORMATION_PACKAGE_S3PREFIX"
         --output-template-file cloudformation-deployment-template.yml
 artifacts:
   type: zip
