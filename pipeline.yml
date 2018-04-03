@@ -23,6 +23,14 @@ Parameters:
     Type: String
     Description: GitHub repository OAuth token
     NoEcho: true
+  TestEnvVariable:
+    Type: String
+    Description: Test variable that shall be passed to testing and production EBS environments
+    NoEcho: true
+  # XXX: MongoDB-URL
+  # XXX: MongoDB-username
+  # XXX: MongoDB-password
+  # XXX: AssetBucketName-S3Bucket
 
 Resources:
   ArtifactBucket:
@@ -158,6 +166,10 @@ Resources:
               StackName: testing-prediction-api-stack
               TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
               Capabilities: CAPABILITY_IAM
+              ParameterOverrides:
+                -
+                # - MongoDB parameters
+                # - AssetBucket-S3Bucket
             RunOrder: '1'
           - Name: ApproveTestStack
             ActionTypeId:
@@ -175,7 +187,7 @@ Resources:
             Configuration:
               ActionMode: DELETE_ONLY
               RoleArn: !GetAtt [CFNRole, Arn]
-              StackName: testing-prediction-api-stack
+              StackName: candis-prediction-api-testing-stack
             RunOrder: '3'
 
       - Name: Production
@@ -190,10 +202,11 @@ Resources:
             Configuration:
               ActionMode: CHANGE_SET_REPLACE
               RoleArn: !GetAtt [CFNRole, Arn]
-              StackName: production-prediction-api-stack
-              ChangeSetName: production-prediction-api-changeset
+              StackName: candis-prediction-api-production-stack
+              ChangeSetName: candis-prediction-api-production-changeset
               TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
               Capabilities: CAPABILITY_IAM
+              # ParameterOverrides:
             RunOrder: 1
           - Name:  ExecuteChangeset
             ActionTypeId:
@@ -204,9 +217,9 @@ Resources:
             Configuration:
               ActionMode: CHANGE_SET_EXECUTE
               StackName:
-                Fn::Sub: production-prediction-api-stack
+                Fn::Sub: candis-prediction-api-production-stack
               ChangeSetName:
-                Fn::Sub: production-prediction-api-changeset
+                Fn::Sub: candis-prediction-api-production-changeset
             RunOrder: 2
 
   CFNRole:

@@ -118,23 +118,8 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: operating-permissions-role
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Sid: QueueAccess
-                Action:
-                  - 'sqs:ChangeMessageVisibility'
-                  - 'sqs:DeleteMessage'
-                  - 'sqs:ReceiveMessage'
-                  - 'sqs:SendMessage'
-                Effect: Allow
-                Resource: '*'
-              - Sid: MetricsAccess
-                Action:
-                  - 'cloudwatch:PutMetricData'
-                Effect: Allow
-                Resource: '*'
-              # XXX: Add S3 bucket access to read models and write data
+      ManagedPolicyArns:
+        # https://docs.aws.amazon.com/de_de/elasticbeanstalk/latest/dg/iam-instanceprofile.html
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier
+        # XXX: Make sure this gives access to the right S3 bucket
       Path: /
