@@ -1,5 +1,0 @@
-// This file would contain information about:
-// - SQS queue handle (response queue)
-// - S3 bucket handle (models, logs)
-// - MongoDB credentials (dataset querying)
-// This file would not be uploaded to Github

@@ -25,7 +25,7 @@ Parameters:
     NoEcho: true
   TestEnvVariable:
     Type: String
-    Description: Test variable that shall be passed to testing and production EBS environments
+    Description: Test variable that is passed EBS environments
     # NoEcho: true
   # XXX: MongoDB-URL
   # XXX: MongoDB-username
@@ -151,41 +151,41 @@ Resources:
             RunOrder: 1
 
       # See https://aws.amazon.com/blogs/aws/codepipeline-update-build-continuous-delivery-workflows-for-cloudformation-stacks/
-      - Name: Testing
-        Actions:
-          - Name: CreateStack
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Provider: CloudFormation
-              Version: '1'
-            InputArtifacts: [Name: CFNTemplateArtifact]
-            Configuration:
-              ActionMode: REPLACE_ON_FAILURE
-              RoleArn: !GetAtt [CFNRole, Arn]
-              StackName: testing-prediction-api-stack
-              TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
-              Capabilities: CAPABILITY_IAM
-              # ParameterOverrides:
-            RunOrder: '1'
-          - Name: ApproveTestStack
-            ActionTypeId:
-              Category: Approval
-              Owner: AWS
-              Provider: Manual
-              Version: '1'
-            RunOrder: '2'
-          - Name: DeleteTestStack
-            ActionTypeId:
-              Category: Deploy
-              Owner: AWS
-              Provider: CloudFormation
-              Version: '1'
-            Configuration:
-              ActionMode: DELETE_ONLY
-              RoleArn: !GetAtt [CFNRole, Arn]
-              StackName: candis-prediction-api-testing-stack
-            RunOrder: '3'
+      # - Name: Testing
+      #   Actions:
+      #     - Name: CreateStack
+      #       ActionTypeId:
+      #         Category: Deploy
+      #         Owner: AWS
+      #         Provider: CloudFormation
+      #         Version: '1'
+      #       InputArtifacts: [Name: CFNTemplateArtifact]
+      #       Configuration:
+      #         ActionMode: REPLACE_ON_FAILURE
+      #         RoleArn: !GetAtt [CFNRole, Arn]
+      #         StackName: testing-prediction-api-stack
+      #         TemplatePath: CFNTemplateArtifact::cloudformation-deployment-template.yml
+      #         Capabilities: CAPABILITY_IAM
+      #         # ParameterOverrides:
+      #       RunOrder: '1'
+      #     - Name: ApproveTestStack
+      #       ActionTypeId:
+      #         Category: Approval
+      #         Owner: AWS
+      #         Provider: Manual
+      #         Version: '1'
+      #       RunOrder: '2'
+      #     - Name: DeleteTestStack
+      #       ActionTypeId:
+      #         Category: Deploy
+      #         Owner: AWS
+      #         Provider: CloudFormation
+      #         Version: '1'
+      #       Configuration:
+      #         ActionMode: DELETE_ONLY
+      #         RoleArn: !GetAtt [CFNRole, Arn]
+      #         StackName: candis-prediction-api-testing-stack
+      #       RunOrder: '3'
 
       - Name: Production
         Actions:
