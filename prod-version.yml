@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: candis-prediction-api EBS DeploymentTemplate
+Resources:
+  ApplicationVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName:
+        Ref: ProdApplication
+      Description: candis-prediction-api ApplicationVersion Production
+      # Leave this empty as it's populated by aws cloudformation package command in CodeBuild stage
+      SourceBundle:
