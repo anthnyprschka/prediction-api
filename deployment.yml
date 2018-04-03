@@ -6,7 +6,7 @@ Resources:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
       Description: candis-prediction-api EBS Application
-      ApplicationName: candis-prediction-api-0
+      ApplicationName: candis-prediction-api-1
 
   ApplicationVersion:
     Type: AWS::ElasticBeanstalk::ApplicationVersion
